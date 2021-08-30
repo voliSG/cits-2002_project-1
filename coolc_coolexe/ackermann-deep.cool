@@ -1,0 +1,23 @@
+// see: https://en.wikipedia.org/wiki/Ackermann_function
+
+int Ackermann(int m, int n)
+{
+  if(m) {
+    if(n) {
+      return Ackermann(m-1, Ackermann(m, n-1));
+    }
+    else {
+      return Ackermann(m-1, 1);
+    }
+  }
+  else {
+    return n+1;
+  }
+}
+
+int main(void)
+{
+  print "Ackermann(3, 10) is "; print Ackermann(3, 10);
+  print "\n";
+  return 0;
+}
