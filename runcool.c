@@ -1,6 +1,6 @@
 //  CITS2002 Project 1 2021
-//  Name(s):             student-name1   (, student-name2)
-//  Student number(s):   student-number1 (, student-number2)
+//  Name(s):             Sean Peralta Garcia
+//  Student number(s):   23088091
 
 //  compile with:  cc -std=c11 -Wall -Werror -o runcool runcool.c
 
@@ -130,6 +130,7 @@ int execute_stackmachine(void)
 
 //  SUPPORT OTHER INSTRUCTIONS HERE
 //      ....
+
     }
 
 //  THE RESULT OF EXECUTING THE INSTRUCTIONS IS FOUND ON THE TOP-OF-STACK
@@ -143,7 +144,16 @@ void read_coolexe_file(char filename[])
 {
     memset(main_memory, 0, sizeof main_memory);   //  clear all memory
 
-//  READ CONTENTS OF coolexe FILE
+//  READ CONTENTS OF coolexe 
+    int i;
+    FILE *ptr;
+    unsigned char buffer2[16];
+    ptr = fopen("filename","r");
+    fread(buffer2,sizeof(buffer2),1,ptr);
+
+    for(i = 0; i<16; i++)
+        printf("%x", buffer2[i]);
+    printf("\n");
 }
 
 //  -------------------------------------------------------------------
