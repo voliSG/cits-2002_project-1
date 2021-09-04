@@ -95,11 +95,13 @@ void report_statistics(void)
 
 AWORD read_memory(int address)
 {
+    ++n_main_memory_reads;
     return main_memory[address];
 }
 
 void write_memory(AWORD address, AWORD value)
 {
+    ++n_main_memory_writes;
     main_memory[address] = value;
 }
 
@@ -117,6 +119,7 @@ int execute_stackmachine(void)
     FP = FP+0;
 
     while(true) {
+        IWORD value1, value2;
 
 //  FETCH THE NEXT INSTRUCTION TO BE EXECUTED
         IWORD instruction   = read_memory(PC);
@@ -134,6 +137,12 @@ int execute_stackmachine(void)
         case I_NOP :
                             break;
         case I_ADD :
+                            value1 = read_memory(SP);
+                            ++SP;
+                            value2 = read_memory(SP);
+
+                            // result is stored in same memory location as value2 (current value SP)
+                            write_memory(SP, value1 + value2);
                             break;
         case I_SUB :
                             break;
@@ -154,6 +163,10 @@ int execute_stackmachine(void)
         case I_PRINTS :
                             break;
         case I_PUSHC :
+                            value1 = read_memory(PC);
+                            ++PC;
+                            --SP;
+                            write_memory(SP, value1);
                             break;
         case I_PUSHA :
                             break;
@@ -162,7 +175,8 @@ int execute_stackmachine(void)
         case I_POPA :
                             break;
         case I_POPR :
-                            break;
+                            break;  
+        }              
     }
 
 //  THE RESULT OF EXECUTING THE INSTRUCTIONS IS FOUND ON THE TOP-OF-STACK
@@ -188,10 +202,17 @@ void read_coolexe_file(char filename[])
         printf("%x", buffer2[i]);
     printf("\n");
     */
+
    int m = 0;
 
    main_memory[m] = I_PUSHC;        ++m;
    main_memory[m] = 4444;           ++m;
+
+   main_memory[m] = I_PUSHC;        ++m;
+   main_memory[m] = 5555;           ++m;
+
+   main_memory[m] = I_ADD;          ++m;
+   main_memory[m] = I_HALT;          ++m;
 }
 
 //  -------------------------------------------------------------------
