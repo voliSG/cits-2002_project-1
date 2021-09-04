@@ -128,9 +128,41 @@ int execute_stackmachine(void)
             break;
         }
 
-//  SUPPORT OTHER INSTRUCTIONS HERE
+//  SUPPORT OTHER INSTRUCTIONS HERE 
 //      ....
-
+        switch (instruction) {
+        case I_NOP :
+                            break;
+        case I_ADD :
+                            break;
+        case I_SUB :
+                            break;
+        case I_MULT :
+                            break;
+        case I_DIV :
+                            break;
+        case I_CALL :
+                            break;
+        case I_RETURN :
+                            break;
+        case I_JMP :
+                            break;
+        case I_JEQ :
+                            break;
+        case I_PRINTI :
+                            break;
+        case I_PRINTS :
+                            break;
+        case I_PUSHC :
+                            break;
+        case I_PUSHA :
+                            break;
+        case I_PUSHR :
+                            break;
+        case I_POPA :
+                            break;
+        case I_POPR :
+                            break;
     }
 
 //  THE RESULT OF EXECUTING THE INSTRUCTIONS IS FOUND ON THE TOP-OF-STACK
@@ -144,7 +176,8 @@ void read_coolexe_file(char filename[])
 {
     memset(main_memory, 0, sizeof main_memory);   //  clear all memory
 
-//  READ CONTENTS OF coolexe 
+//  READ CONTENTS OF coolexe
+    /*
     int i;
     FILE *ptr;
     unsigned char buffer2[16];
@@ -154,6 +187,11 @@ void read_coolexe_file(char filename[])
     for(i = 0; i<16; i++)
         printf("%x", buffer2[i]);
     printf("\n");
+    */
+   int m = 0;
+
+   main_memory[m] = I_PUSHC;        ++m;
+   main_memory[m] = 4444;           ++m;
 }
 
 //  -------------------------------------------------------------------
