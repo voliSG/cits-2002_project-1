@@ -145,6 +145,12 @@ int execute_stackmachine(void)
                             write_memory(SP, value1 + value2);
                             break;
         case I_SUB :
+                            value1 = read_memory(SP);
+                            ++SP;
+                            value2 = read_memory(SP);
+
+                            // result is stored in same memory location as value2 (current value SP)
+                            write_memory(SP, value2 - value1);
                             break;
         case I_MULT :
                             break;
@@ -180,6 +186,7 @@ int execute_stackmachine(void)
     }
 
 //  THE RESULT OF EXECUTING THE INSTRUCTIONS IS FOUND ON THE TOP-OF-STACK
+printf("result: %i\n", read_memory(SP));
     return read_memory(SP);
 }
 
@@ -206,13 +213,13 @@ void read_coolexe_file(char filename[])
    int m = 0;
 
    main_memory[m] = I_PUSHC;        ++m;
-   main_memory[m] = 4444;           ++m;
+   main_memory[m] = 3;           ++m;
 
    main_memory[m] = I_PUSHC;        ++m;
-   main_memory[m] = 5555;           ++m;
+   main_memory[m] = 10;           ++m;
 
-   main_memory[m] = I_ADD;          ++m;
-   main_memory[m] = I_HALT;          ++m;
+   main_memory[m] = I_SUB;          ++m;
+   main_memory[m] = I_HALT;         ++m;
 }
 
 //  -------------------------------------------------------------------
