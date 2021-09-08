@@ -247,18 +247,20 @@ void read_coolexe_file(char filename[])
     memset(main_memory, 0, sizeof main_memory);   //  clear all memory
 
 //  READ CONTENTS OF coolexe
-    /*
-    int i;
-    FILE *ptr;
-    unsigned char buffer2[16];
-    ptr = fopen("filename","r");
-    fread(buffer2,sizeof(buffer2),1,ptr);
+    int file_contents[BUFSIZ];
+    int i_read;
 
-    for(i = 0; i<16; i++)
-        printf("%x", buffer2[i]);
-    printf("\n");
-    */
+    FILE *fp = fopen(filename, "rb");
 
+    i_read = fread(file_contents, sizeof(int), BUFSIZ, fp);
+
+    fclose(fp);
+
+    for(int m = 0; m < sizeof(file_contents); m++) {
+        printf("%i\n", file_contents[m]);
+    }
+
+   /*
    int m = 0;
 
    main_memory[m] = I_PUSHC;        ++m;
@@ -270,6 +272,7 @@ void read_coolexe_file(char filename[])
    main_memory[m] = I_ADD;          ++m;
    main_memory[m] = I_PRINTI;       ++m;
    main_memory[m] = I_HALT;         ++m;
+   */
 }
 
 //  -------------------------------------------------------------------
