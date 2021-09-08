@@ -188,18 +188,25 @@ int execute_stackmachine(void)
         case I_JMP :
                             printf(">>> I_JMP\n");
 
+                            PC = read_memory(PC);
                             break;
         case I_JEQ :
                             printf(">>> I_JEQ\n");
 
+                            if (read_memory(SP) == 0) {
+                                PC = read_memory(PC);
+                            } else {
+                                ++PC;
+                            }
                             break;
         case I_PRINTI :
                             printf(">>> I_PRINTI\n");
 
-                            printf("%i\n", read_memory(SP));
+                            printf("...%i\n", read_memory(SP));
                             break;
         case I_PRINTS :
                             printf(">>> I_PRINTS\n");
+
 
                             break;
         case I_PUSHC :
@@ -248,15 +255,16 @@ void read_coolexe_file(char filename[])
 
 //  READ CONTENTS OF coolexe
     int file_contents[BUFSIZ];
-    int i_read;
 
     FILE *fp = fopen(filename, "rb");
 
-    i_read = fread(file_contents, 2, BUFSIZ, fp);
+    fread(file_contents, sizeof(IWORD), BUFSIZ, fp);
 
     fclose(fp);
 
-    for(int m = 0; m < sizeof(file_contents); m++) {
+    int PC = 0;
+    for(int m = 0; m < sizeof(file_contents); m += 2) {
+        write_memory(PC, file_contents[m]);
         printf("%i\n", file_contents[m]);
     }
 
