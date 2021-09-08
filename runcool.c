@@ -121,13 +121,16 @@ int execute_stackmachine(void)
     while(true) {
         IWORD value1, value2;
 
+        //printf(".PC: %i\n", PC);
 //  FETCH THE NEXT INSTRUCTION TO BE EXECUTED
+        printf("INSTRUCTION: %i\n", read_memory(PC));
         IWORD instruction   = read_memory(PC);
         ++PC;
 
 //      printf("%s\n", INSTRUCTION_name[instruction]);
 
         if(instruction == I_HALT) {
+            printf(">>> I_HALT\n");
             break;
         }
 
@@ -213,6 +216,8 @@ int execute_stackmachine(void)
                             printf(">>> I_PUSHC\n");
 
                             value1 = read_memory(PC);
+                            printf("... %i\n", value1);
+
                             --SP;
                             write_memory(SP, value1);
 
@@ -235,12 +240,17 @@ int execute_stackmachine(void)
         case I_POPA :
                             printf(">>> I_POPA\n");
 
+                            value1 = read_memory(SP);
+                            write_memory(read_memory(PC), value1);
+                            ++SP;
                             break;
         case I_POPR :
                             printf(">>> I_POPR\n");
 
-                            break;  
-        }              
+                            break;
+
+        }      
+        //printf("PC: %i\n", PC);        
     }
 
 //  THE RESULT OF EXECUTING THE INSTRUCTIONS IS FOUND ON THE TOP-OF-STACK
@@ -259,16 +269,14 @@ void read_coolexe_file(char filename[])
 
     FILE *fp = fopen(filename, "rb");
 
-    fread(file_contents, sizeof(IWORD), BUFSIZ, fp);
+    fread(file_contents, sizeof(int), BUFSIZ, fp);
 
     fclose(fp);
 
     int PC = 0;
     for(int m = 0; m <= BUFSIZ; m += 2) {
-        //enum INSTRUCTION instr = file_contents[m];
-        write_memory(PC, file_contents[m]);
-        printf("%i\n", file_contents[m]);
-        //printf("%i\n", main_memory[m]);
+        main_memory[PC] = file_contents[m];
+        ++PC;
     }
 
    /*
