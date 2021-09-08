@@ -135,8 +135,11 @@ int execute_stackmachine(void)
 //      ....
         switch (instruction) {
         case I_NOP :
+                            printf(">>> I_NOP\n");
                             break;
         case I_ADD :
+                            printf(">>> I_ADD\n");
+
                             value1 = read_memory(SP);
                             ++SP;
                             value2 = read_memory(SP);
@@ -145,6 +148,8 @@ int execute_stackmachine(void)
                             write_memory(SP, value1 + value2);
                             break;
         case I_SUB :
+                            printf(">>> I_SUB\n");
+
                             value1 = read_memory(SP);
                             ++SP;
                             value2 = read_memory(SP);
@@ -153,40 +158,84 @@ int execute_stackmachine(void)
                             write_memory(SP, value2 - value1);
                             break;
         case I_MULT :
+                            printf(">>> I_MULT\n");
+
+                            value1 = read_memory(SP);
+                            ++SP;
+                            value2 = read_memory(SP);
+
+                            // result is stored in same memory location as value2 (current value SP)
+                            write_memory(SP, value1 * value2);
                             break;
         case I_DIV :
+                            printf(">>> I_DIV\n");
+
+                            value1 = read_memory(SP);
+                            ++SP;
+                            value2 = read_memory(SP);
+
+                            // result is stored in same memory location as value2 (current value SP)
+                            write_memory(SP, value2 / value1);
                             break;
         case I_CALL :
+                            printf(">>> I_CALL\n");
+
                             break;
         case I_RETURN :
+                            printf(">>> I_RETURN\n");
+
                             break;
         case I_JMP :
+                            printf(">>> I_JMP\n");
+
                             break;
         case I_JEQ :
+                            printf(">>> I_JEQ\n");
+
                             break;
         case I_PRINTI :
+                            printf(">>> I_PRINTI\n");
+
+                            printf("%i\n", read_memory(SP));
                             break;
         case I_PRINTS :
+                            printf(">>> I_PRINTS\n");
+
                             break;
         case I_PUSHC :
+                            printf(">>> I_PUSHC\n");
+
                             value1 = read_memory(PC);
                             ++PC;
                             --SP;
                             write_memory(SP, value1);
                             break;
         case I_PUSHA :
+                            printf(">>> I_PUSHA\n");
+
+                            // hold the address of the integer value to be pushed onto stack
+                            value1 = read_memory(PC);
+
+                            ++PC;
+                            --SP;
+                            write_memory(SP, read_memory(value1));
                             break;
         case I_PUSHR :
+                            printf(">>> I_PUSHR\n");
+
                             break;
         case I_POPA :
+                            printf(">>> I_POPA\n");
+
                             break;
         case I_POPR :
+                            printf(">>> I_POPR\n");
+
                             break;  
         }              
     }
 
 //  THE RESULT OF EXECUTING THE INSTRUCTIONS IS FOUND ON THE TOP-OF-STACK
-printf("result: %i\n", read_memory(SP));
     return read_memory(SP);
 }
 
@@ -216,9 +265,10 @@ void read_coolexe_file(char filename[])
    main_memory[m] = 3;           ++m;
 
    main_memory[m] = I_PUSHC;        ++m;
-   main_memory[m] = 10;           ++m;
+   main_memory[m] = 5;           ++m;
 
-   main_memory[m] = I_SUB;          ++m;
+   main_memory[m] = I_ADD;          ++m;
+   main_memory[m] = I_PRINTI;       ++m;
    main_memory[m] = I_HALT;         ++m;
 }
 
