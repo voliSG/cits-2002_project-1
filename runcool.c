@@ -29,16 +29,16 @@ AWORD                       main_memory[N_MAIN_MEMORY_WORDS];
 //  see:  https://teaching.csse.uwa.edu.au/units/CITS2002/projects/coolinstructions.php
 enum INSTRUCTION {
     I_HALT       = 0,
-    I_NOP,
-    I_ADD,
-    I_SUB,
-    I_MULT,
-    I_DIV,
-    I_CALL,
-    I_RETURN,
-    I_JMP,
-    I_JEQ,
-    I_PRINTI,
+    I_NOP        = 1,
+    I_ADD        = 2,
+    I_SUB        = 3,
+    I_MULT       = 4,
+    I_DIV        = 5,
+    I_CALL       = 6,
+    I_RETURN     = 7,
+    I_JMP        = 8,
+    I_JEQ        = 9,
+    I_PRINTI     = 10,
     I_PRINTS,
     I_PUSHC,
     I_PUSHA,
@@ -213,19 +213,20 @@ int execute_stackmachine(void)
                             printf(">>> I_PUSHC\n");
 
                             value1 = read_memory(PC);
-                            ++PC;
                             --SP;
                             write_memory(SP, value1);
+
+                            ++PC;
                             break;
         case I_PUSHA :
                             printf(">>> I_PUSHA\n");
 
                             // hold the address of the integer value to be pushed onto stack
                             value1 = read_memory(PC);
-
-                            ++PC;
                             --SP;
                             write_memory(SP, read_memory(value1));
+                            
+                            ++PC;
                             break;
         case I_PUSHR :
                             printf(">>> I_PUSHR\n");
@@ -263,7 +264,7 @@ void read_coolexe_file(char filename[])
     fclose(fp);
 
     int PC = 0;
-    for(int m = 0; m < sizeof(file_contents); m += 2) {
+    for(int m = 0; m <= BUFSIZ; m += 2) {
         write_memory(PC, file_contents[m]);
         printf("%i\n", file_contents[m]);
     }
