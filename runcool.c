@@ -252,7 +252,7 @@ void read_coolexe_file(char filename[])
 
     FILE *fp = fopen(filename, "rb");
 
-    i_read = fread(file_contents, sizeof(int), BUFSIZ, fp);
+    i_read = fread(file_contents, 2, BUFSIZ, fp);
 
     fclose(fp);
 
