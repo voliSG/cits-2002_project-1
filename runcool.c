@@ -265,8 +265,10 @@ void read_coolexe_file(char filename[])
 
     int PC = 0;
     for(int m = 0; m <= BUFSIZ; m += 2) {
+        //enum INSTRUCTION instr = file_contents[m];
         write_memory(PC, file_contents[m]);
         printf("%i\n", file_contents[m]);
+        //printf("%i\n", main_memory[m]);
     }
 
    /*
