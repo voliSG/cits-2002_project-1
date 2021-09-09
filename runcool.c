@@ -207,6 +207,16 @@ int execute_stackmachine(void)
                             break;
         case I_RETURN :
                             printf(">>> I_RETURN\n");
+                            
+                            // PC at FP-offset
+                            // write return value from TOS (SP) to Caller's TOS
+                            write_memory(FP + read_memory(PC), read_memory(SP));
+
+                            // set PC to return address (FP + 1)
+                            PC = read_memory(FP + 1);
+
+                            // reset FP to FP of calling procedure
+                            FP = read_memory(FP);
 
                             break;
         case I_JMP :
