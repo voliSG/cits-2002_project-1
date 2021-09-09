@@ -269,29 +269,19 @@ void read_coolexe_file(char filename[])
 
     FILE *fp = fopen(filename, "rb");
 
-    fread(file_contents, sizeof(int), BUFSIZ, fp);
+    fread(file_contents, sizeof(char), BUFSIZ, fp);
 
     fclose(fp);
 
     int PC = 0;
-    for(int m = 0; m <= BUFSIZ; m += 2) {
+    for(int m = 0; m <= BUFSIZ; m += 1) {
         main_memory[PC] = file_contents[m];
-        ++PC;
+        PC += 2;
     }
 
-   /*
-   int m = 0;
-
-   main_memory[m] = I_PUSHC;        ++m;
-   main_memory[m] = 3;           ++m;
-
-   main_memory[m] = I_PUSHC;        ++m;
-   main_memory[m] = 5;           ++m;
-
-   main_memory[m] = I_ADD;          ++m;
-   main_memory[m] = I_PRINTI;       ++m;
-   main_memory[m] = I_HALT;         ++m;
-   */
+    for(int i = 0; i <= 11; i += 1) {
+        printf("BIN: %i\n", main_memory[i]);
+    }
 }
 
 //  -------------------------------------------------------------------
