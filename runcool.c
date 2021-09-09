@@ -149,6 +149,8 @@ int execute_stackmachine(void)
 
                             // result is stored in same memory location as value2 (current value SP)
                             write_memory(SP, value1 + value2);
+
+                            ++PC;
                             break;
         case I_SUB :
                             printf(">>> I_SUB\n");
@@ -159,6 +161,8 @@ int execute_stackmachine(void)
 
                             // result is stored in same memory location as value2 (current value SP)
                             write_memory(SP, value2 - value1);
+
+                            ++PC;
                             break;
         case I_MULT :
                             printf(">>> I_MULT\n");
@@ -169,6 +173,8 @@ int execute_stackmachine(void)
 
                             // result is stored in same memory location as value2 (current value SP)
                             write_memory(SP, value1 * value2);
+
+                            ++PC;
                             break;
         case I_DIV :
                             printf(">>> I_DIV\n");
@@ -179,11 +185,25 @@ int execute_stackmachine(void)
 
                             // result is stored in same memory location as value2 (current value SP)
                             write_memory(SP, value2 / value1);
+
+                            ++PC;
                             break;
         case I_CALL :
                             printf(">>> I_CALL\n");
 
+                            // PC curently on callee function-addr
+                            // write return address to memory (PC + 1)
+                            --SP;
+                            write_memory(SP, read_memory(PC + 1));
 
+                            // write FP of calling procecdure to TOS
+                            --SP;
+                            write_memory(SP, FP);
+                            // assign new FP value (current value of SP)
+                            FP = SP;
+
+                            // update PC to new function-addr
+                            PC = read_memory(PC);
                             break;
         case I_RETURN :
                             printf(">>> I_RETURN\n");
@@ -251,7 +271,7 @@ int execute_stackmachine(void)
                             break;
 
         }      
-        //printf("PC: %i\n", PC);        
+        printf("PC: %i\n", PC);        
     }
 
 //  THE RESULT OF EXECUTING THE INSTRUCTIONS IS FOUND ON THE TOP-OF-STACK
