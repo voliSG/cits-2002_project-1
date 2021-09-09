@@ -39,12 +39,12 @@ enum INSTRUCTION {
     I_JMP        = 8,
     I_JEQ        = 9,
     I_PRINTI     = 10,
-    I_PRINTS,
-    I_PUSHC,
-    I_PUSHA,
-    I_PUSHR,
-    I_POPA,
-    I_POPR
+    I_PRINTS     = 11,
+    I_PUSHC      = 12,
+    I_PUSHA      = 13,
+    I_PUSHR      = 14,
+    I_POPA       = 15,
+    I_POPR       = 16
 };
 
 //  USE VALUES OF enum INSTRUCTION TO INDEX THE INSTRUCTION_name[] ARRAY
@@ -115,9 +115,6 @@ int execute_stackmachine(void)
     int SP      = N_MAIN_MEMORY_WORDS;  // initialised to top-of-stack
     int FP      = 0;                    // frame pointer
 
-//  REMOVE THE FOLLOWING LINE ONCE YOU ACTUALLY NEED TO USE FP
-    //FP = FP+0;
-
     while(true) {
         IWORD value1, value2, tos_tmp, pc_tmp;
 
@@ -158,11 +155,11 @@ int execute_stackmachine(void)
                             value2 = read_memory(SP);
 
                             // subtracted value (for write and printf)
-                            tos_tmp = value2 - value1;
+                            value1 = value2 - value1;
                             // result is stored in same memory location as value2 (current value SP)
-                            write_memory(SP, tos_tmp);
+                            write_memory(SP, value1);
                             // print written value
-                            printf("...\t%i\n", tos_tmp);
+                            printf("...\t%i\n", value1);
 
                             break;
         case I_MULT :
@@ -272,6 +269,15 @@ int execute_stackmachine(void)
         case I_PUSHR :
                             printf(">>> I_PUSHR\n");
 
+                            pc_tmp = read_memory(PC);
+                            value1 = read_memory(FP + pc_tmp);
+                            printf("...\t%i\n", value1);
+
+                            --SP;
+                            write_memory(FP + pc_tmp, value1);
+
+
+                            ++PC;
                             break;
         case I_POPA :
                             printf(">>> I_POPA\n");
