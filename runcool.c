@@ -116,7 +116,7 @@ int execute_stackmachine(void)
     int FP      = 0;                    // frame pointer
 
 //  REMOVE THE FOLLOWING LINE ONCE YOU ACTUALLY NEED TO USE FP
-    FP = FP+0;
+    //FP = FP+0;
 
     while(true) {
         IWORD value1, value2;
@@ -182,6 +182,7 @@ int execute_stackmachine(void)
                             break;
         case I_CALL :
                             printf(">>> I_CALL\n");
+
 
                             break;
         case I_RETURN :
@@ -265,23 +266,9 @@ void read_coolexe_file(char filename[])
     memset(main_memory, 0, sizeof main_memory);   //  clear all memory
 
 //  READ CONTENTS OF coolexe
-    int file_contents[BUFSIZ];
-
     FILE *fp = fopen(filename, "rb");
-
-    fread(file_contents, sizeof(char), BUFSIZ, fp);
-
+    fread(main_memory, 2, N_MAIN_MEMORY_WORDS, fp);
     fclose(fp);
-
-    int PC = 0;
-    for(int m = 0; m <= BUFSIZ; m += 1) {
-        main_memory[PC] = file_contents[m];
-        PC += 2;
-    }
-
-    for(int i = 0; i <= 11; i += 1) {
-        printf("BIN: %i\n", main_memory[i]);
-    }
 }
 
 //  -------------------------------------------------------------------
