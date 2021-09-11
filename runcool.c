@@ -216,7 +216,7 @@ int execute_stackmachine(void)
                             printf("...\t%i\n", read_memory(SP));
                             break;
         case I_PRINTS :
-
+                            
                             break;
         case I_PUSHC :
                             --SP;
@@ -243,11 +243,17 @@ int execute_stackmachine(void)
 
                             break;
         case I_POPA :
+                            // holds value to be popped
                             value1 = read_memory(SP);
                             write_memory(read_memory(PC), value1);
                             ++SP;
                             break;
         case I_POPR :
+                            // holds value to be popped
+                            value1 = read_memory(SP);
+                            write_memory(FP + read_memory(PC), value1);
+                            ++SP;
+
                             break;
 
         }
