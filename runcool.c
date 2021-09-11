@@ -116,7 +116,7 @@ int execute_stackmachine(void)
     int FP      = 0;                    // frame pointer
 
     while(true) {
-        IWORD value1, value2;
+        int value1, value2;
 
 
 //  FETCH THE NEXT INSTRUCTION TO BE EXECUTED
@@ -212,11 +212,14 @@ int execute_stackmachine(void)
                                 ++PC;
                             }
                             break;
-        case I_PRINTI :
-                            printf("...\t%i\n", read_memory(SP));
+        case I_PRINTI : ;
+                            // convert to signed
+                            IWORD value1 = read_memory(SP);
+
+                            printf("...\t%i\n", value1);
                             break;
         case I_PRINTS :
-                            
+
                             break;
         case I_PUSHC :
                             --SP;
@@ -255,13 +258,15 @@ int execute_stackmachine(void)
                             ++SP;
 
                             break;
-
         }
-               
+        printf("... TOS: %i\n", read_memory(SP));
     }
 
 //  THE RESULT OF EXECUTING THE INSTRUCTIONS IS FOUND ON THE TOP-OF-STACK
-    return read_memory(SP);
+    // convert to sigmed
+    IWORD result = read_memory(SP);
+
+    return result;
 }
 
 //  -------------------------------------------------------------------
