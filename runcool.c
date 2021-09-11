@@ -259,7 +259,6 @@ int execute_stackmachine(void)
 
                             break;
         }
-        printf("... TOS: %i\n", read_memory(SP));
     }
 
 //  THE RESULT OF EXECUTING THE INSTRUCTIONS IS FOUND ON THE TOP-OF-STACK
@@ -278,7 +277,14 @@ void read_coolexe_file(char filename[])
 
 //  READ CONTENTS OF coolexe
     FILE *fp = fopen(filename, "rb");
-    fread(main_memory, 2, N_MAIN_MEMORY_WORDS, fp);
+
+    if(fp == NULL) {
+        printf("cannot open '%s'\n", filename);
+        exit(EXIT_FAILURE);
+    } else {
+        fread(main_memory, 2, N_MAIN_MEMORY_WORDS, fp);
+    }
+    
     fclose(fp);
 }
 
