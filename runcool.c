@@ -125,7 +125,6 @@ int execute_stackmachine(void)
         ++PC;
 
         printf(">>> %s\n", INSTRUCTION_name[instruction]);
-        printf("...\t%i\n", main_memory[PC]);
 
         if(instruction == I_HALT) {
             break;
@@ -188,11 +187,14 @@ int execute_stackmachine(void)
                             // store new PC
                             value1 = read_memory(FP + 1);
 
+                            // store new SP
+                            value2 = FP + read_memory(PC);
+
                             // write return value from TOS (SP) to Caller's TOS
-                            write_memory(FP + read_memory(PC), read_memory(SP));
+                            write_memory(value2, read_memory(SP));
 
                             // set new TOS (SP)
-                            SP = FP + read_memory(PC);
+                            SP = value2;
 
                             // set PC to return address (FP + 1)
                             PC = value1;
@@ -231,12 +233,14 @@ int execute_stackmachine(void)
                             ++PC;
                             break;
         case I_PUSHR :
-                            // hold the address of the integer value to be pushed onto stack
-                            value1 = FP + read_memory(PC);
+                            // holds value to be stored on TOS
+                            value1 = read_memory(FP + read_memory(PC));
                             --SP;
-                            write_memory(SP, read_memory(value1));
+                            write_memory(SP, value1);
 
                             ++PC;
+
+
                             break;
         case I_POPA :
                             value1 = read_memory(SP);
@@ -246,7 +250,8 @@ int execute_stackmachine(void)
         case I_POPR :
                             break;
 
-        }          
+        }
+               
     }
 
 //  THE RESULT OF EXECUTING THE INSTRUCTIONS IS FOUND ON THE TOP-OF-STACK
