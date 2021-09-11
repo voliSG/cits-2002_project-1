@@ -116,7 +116,7 @@ int execute_stackmachine(void)
     int FP      = 0;                    // frame pointer
 
     while(true) {
-        IWORD value1, value2, tos_tmp, pc_tmp;
+        IWORD value1, value2;
 
 
 //  FETCH THE NEXT INSTRUCTION TO BE EXECUTED
@@ -149,10 +149,8 @@ int execute_stackmachine(void)
                             ++SP;
                             value2 = read_memory(SP);
 
-                            // subtracted value (for write and printf)
-                            value1 = value2 - value1;
                             // result is stored in same memory location as value2 (current value SP)
-                            write_memory(SP, value1);
+                            write_memory(SP, value2 - value1);
                             break;
         case I_MULT :
                             value1 = read_memory(SP);
@@ -174,7 +172,7 @@ int execute_stackmachine(void)
                             // PC curently on callee function-addr
                             // write return address to memory (PC + 1)
                             --SP;
-                            write_memory(SP, read_memory(PC + 1));
+                            write_memory(SP, PC + 1);
 
                             // write FP of calling procecdure to TOS
                             --SP;
@@ -187,11 +185,17 @@ int execute_stackmachine(void)
                             break;
         case I_RETURN :
                             // PC at FP-offset
+                            // store new PC
+                            value1 = read_memory(FP + 1);
+
                             // write return value from TOS (SP) to Caller's TOS
                             write_memory(FP + read_memory(PC), read_memory(SP));
 
+                            // set new TOS (SP)
+                            SP = FP + read_memory(PC);
+
                             // set PC to return address (FP + 1)
-                            PC = read_memory(FP + 1);
+                            PC = value1;
 
                             // reset FP to FP of calling procedure
                             FP = read_memory(FP);
@@ -213,10 +217,8 @@ int execute_stackmachine(void)
 
                             break;
         case I_PUSHC :
-                            value1 = read_memory(PC);
-
                             --SP;
-                            write_memory(SP, value1);
+                            write_memory(SP, read_memory(PC));
 
                             ++PC;
                             break;
@@ -229,13 +231,10 @@ int execute_stackmachine(void)
                             ++PC;
                             break;
         case I_PUSHR :
-                            pc_tmp = read_memory(PC);
-                            value1 = read_memory(FP + pc_tmp);
-                            printf("...\t%i\n", value1);
-
+                            // hold the address of the integer value to be pushed onto stack
+                            value1 = FP + read_memory(PC);
                             --SP;
-                            write_memory(FP + pc_tmp, value1);
-
+                            write_memory(SP, read_memory(value1));
 
                             ++PC;
                             break;
