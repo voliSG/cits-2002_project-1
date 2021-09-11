@@ -79,8 +79,8 @@ int n_cache_memory_misses   = 0;
 
 void report_statistics(void)
 {
-    printf("@number-of-main-memory-reads\t%i\n",    n_main_memory_reads);
-    printf("@number-of-main-memory-writes\t%i\n",   n_main_memory_writes);
+    printf("@number-of-main-memory-reads-(fast-jeq)\t%i\n",    n_main_memory_reads);
+    printf("@number-of-main-memory-writes-(fast-jeq)\t%i\n",   n_main_memory_writes);
     printf("@number-of-cache-memory-hits\t%i\n",    n_cache_memory_hits);
     printf("@number-of-cache-memory-misses\t%i\n",  n_cache_memory_misses);
 }
@@ -206,6 +206,8 @@ int execute_stackmachine(void)
                             PC = read_memory(PC);
                             break;
         case I_JEQ :
+                            // have not popped value (might need a fix)
+
                             if (read_memory(SP) == 0) {
                                 PC = read_memory(PC);
                             } else {
@@ -219,7 +221,17 @@ int execute_stackmachine(void)
                             printf("...\t%i\n", value1);
                             break;
         case I_PRINTS :
+                            // temp address PC
+                            
 
+                            // loop to null byte
+                                // bin to char
+                                //print
+
+                            // newline char
+
+                            // increment to next instruction
+                            ++PC;
                             break;
         case I_PUSHC :
                             --SP;
@@ -284,7 +296,7 @@ void read_coolexe_file(char filename[])
     } else {
         fread(main_memory, 2, N_MAIN_MEMORY_WORDS, fp);
     }
-    
+
     fclose(fp);
 }
 
