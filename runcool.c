@@ -124,10 +124,10 @@ int execute_stackmachine(void)
         IWORD instruction   = read_memory(PC);
         ++PC;
 
-//      printf("%s\n", INSTRUCTION_name[instruction]);
+        printf(">>> %s\n", INSTRUCTION_name[instruction]);
+        printf("...\t%i\n", main_memory[PC]);
 
         if(instruction == I_HALT) {
-            printf(">>> I_HALT\n");
             break;
         }
 
@@ -135,11 +135,8 @@ int execute_stackmachine(void)
 //      ....
         switch (instruction) {
         case I_NOP :
-                            printf(">>> I_NOP\n");
                             break;
         case I_ADD :
-                            printf(">>> I_ADD\n");
-
                             value1 = read_memory(SP);
                             ++SP;
                             value2 = read_memory(SP);
@@ -148,8 +145,6 @@ int execute_stackmachine(void)
                             write_memory(SP, value1 + value2);
                             break;
         case I_SUB :
-                            printf(">>> I_SUB\n");
-
                             value1 = read_memory(SP);
                             ++SP;
                             value2 = read_memory(SP);
@@ -158,13 +153,8 @@ int execute_stackmachine(void)
                             value1 = value2 - value1;
                             // result is stored in same memory location as value2 (current value SP)
                             write_memory(SP, value1);
-                            // print written value
-                            printf("...\t%i\n", value1);
-
                             break;
         case I_MULT :
-                            printf(">>> I_MULT\n");
-
                             value1 = read_memory(SP);
                             ++SP;
                             value2 = read_memory(SP);
@@ -173,8 +163,6 @@ int execute_stackmachine(void)
                             write_memory(SP, value1 * value2);
                             break;
         case I_DIV :
-                            printf(">>> I_DIV\n");
-
                             value1 = read_memory(SP);
                             ++SP;
                             value2 = read_memory(SP);
@@ -183,8 +171,6 @@ int execute_stackmachine(void)
                             write_memory(SP, value2 / value1);
                             break;
         case I_CALL :
-                            printf(">>> I_CALL\n");
-
                             // PC curently on callee function-addr
                             // write return address to memory (PC + 1)
                             --SP;
@@ -197,38 +183,23 @@ int execute_stackmachine(void)
                             FP = SP;
 
                             // update PC to new function-addr
-                            value1 = read_memory(PC);
-                            PC = value1;
-                            printf("...\t%i\n", value1);
+                            PC = read_memory(PC);
                             break;
         case I_RETURN :
-                            printf(">>> I_RETURN\n");
-
                             // PC at FP-offset
-                            // calculate return value (for write and printf)
-                            tos_tmp = read_memory(SP);
-
                             // write return value from TOS (SP) to Caller's TOS
-                            write_memory(FP + read_memory(PC), tos_tmp);
+                            write_memory(FP + read_memory(PC), read_memory(SP));
 
                             // set PC to return address (FP + 1)
                             PC = read_memory(FP + 1);
 
                             // reset FP to FP of calling procedure
                             FP = read_memory(FP);
-
-                            // print returned value
-                            printf("...\t%i\n", tos_tmp);
-
                             break;
         case I_JMP :
-                            printf(">>> I_JMP\n");
-
                             PC = read_memory(PC);
                             break;
         case I_JEQ :
-                            printf(">>> I_JEQ\n");
-
                             if (read_memory(SP) == 0) {
                                 PC = read_memory(PC);
                             } else {
@@ -236,20 +207,13 @@ int execute_stackmachine(void)
                             }
                             break;
         case I_PRINTI :
-                            printf(">>> I_PRINTI\n");
-
                             printf("...\t%i\n", read_memory(SP));
                             break;
         case I_PRINTS :
-                            printf(">>> I_PRINTS\n");
-
 
                             break;
         case I_PUSHC :
-                            printf(">>> I_PUSHC\n");
-
                             value1 = read_memory(PC);
-                            printf("...\t%i\n", value1);
 
                             --SP;
                             write_memory(SP, value1);
@@ -257,8 +221,6 @@ int execute_stackmachine(void)
                             ++PC;
                             break;
         case I_PUSHA :
-                            printf(">>> I_PUSHA\n");
-
                             // hold the address of the integer value to be pushed onto stack
                             value1 = read_memory(PC);
                             --SP;
@@ -267,8 +229,6 @@ int execute_stackmachine(void)
                             ++PC;
                             break;
         case I_PUSHR :
-                            printf(">>> I_PUSHR\n");
-
                             pc_tmp = read_memory(PC);
                             value1 = read_memory(FP + pc_tmp);
                             printf("...\t%i\n", value1);
@@ -280,15 +240,11 @@ int execute_stackmachine(void)
                             ++PC;
                             break;
         case I_POPA :
-                            printf(">>> I_POPA\n");
-
                             value1 = read_memory(SP);
                             write_memory(read_memory(PC), value1);
                             ++SP;
                             break;
         case I_POPR :
-                            printf(">>> I_POPR\n");
-
                             break;
 
         }          
