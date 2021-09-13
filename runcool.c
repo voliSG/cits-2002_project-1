@@ -103,6 +103,11 @@ void report_statistics(void)
 
 AWORD read_memory(int address)
 {
+    ++n_main_memory_reads;
+    return main_memory[address];
+
+
+    /*
     int cache_address = address % N_CACHE_WORDS;
     if(cache_memory[cache_address].address == address) {
         n_cache_memory_hits++;
@@ -121,11 +126,16 @@ AWORD read_memory(int address)
             cache_memory[cache_address].clean =1;  
         }  
     }
-    return cache_memory[cache_address].contents;   
+    return cache_memory[cache_address].contents;   */
 }
 
 void write_memory(AWORD address, AWORD value)
 {
+    ++n_main_memory_writes;
+    main_memory[address] = value;
+
+    
+    /*
     int cache_address=address%N_CACHE_WORDS;
     if(cache_memory[cache_address].address== address) {
         n_cache_memory_hits++;
@@ -148,6 +158,7 @@ void write_memory(AWORD address, AWORD value)
             cache_memory[cache_address].clean =0;
             }  
     }
+    */
 }
  
 //  -------------------------------------------------------------------
@@ -162,6 +173,7 @@ int execute_stackmachine(void)
 
     while(true) {
         int value1, value2;
+        IWORD signed_pc;
 
 
 //  FETCH THE NEXT INSTRUCTION TO BE EXECUTED
@@ -169,7 +181,7 @@ int execute_stackmachine(void)
         IWORD instruction   = read_memory(PC);
         ++PC;
 
-        printf(">>> %s\n", INSTRUCTION_name[instruction]);
+        printf(">>> %s (%i)\n", INSTRUCTION_name[instruction], main_memory[PC-1]);
 
         if(instruction == I_HALT) {
             break;
@@ -261,7 +273,7 @@ int execute_stackmachine(void)
                             break;
         case I_PRINTI : ;
                             // convert to signed
-                            IWORD value1 = read_memory(SP);
+                            value1 = read_memory(SP);
 
                             printf("...\t%i\n", value1);
                             break;
@@ -310,11 +322,18 @@ int execute_stackmachine(void)
                             
                             ++PC;
                             break;
-        case I_PUSHR :
+        case I_PUSHR : ;
+                            // hold signed value if negative
+                            signed_pc = read_memory(PC);
+
+                            printf("%i\n", signed_pc);
                             // holds value to be stored on TOS
-                            value1 = read_memory(FP + read_memory(PC));
+                            value1 = read_memory(FP + signed_pc);
+                            printf("%i\n", value1);
                             --SP;
                             write_memory(SP, value1);
+                            //printf("sp (%i): %i\n", SP, main_memory[SP]);
+
 
                             ++PC;
 
@@ -326,14 +345,19 @@ int execute_stackmachine(void)
                             write_memory(read_memory(PC), value1);
                             ++SP;
                             break;
-        case I_POPR :
+        case I_POPR : ;
+                            // hold signed value if negative
+                            signed_pc = read_memory(PC);
+
                             // holds value to be popped
                             value1 = read_memory(SP);
-                            write_memory(FP + read_memory(PC), value1);
+    
+                            write_memory(FP + signed_pc, value1);
                             ++SP;
-
+                            ++PC;
                             break;
         }
+       printf("%i\n", main_memory[SP]);
     }
 
 //  THE RESULT OF EXECUTING THE INSTRUCTIONS IS FOUND ON THE TOP-OF-STACK
@@ -362,6 +386,7 @@ void read_coolexe_file(char filename[])
 
     fclose(fp);
 
+    /*
     // load cache with first 32 bytes of main memory
     for(AWORD i = 0; i < N_CACHE_WORDS; i++) {
         cache_memory[i].address = i;
@@ -369,6 +394,7 @@ void read_coolexe_file(char filename[])
         cache_memory[i].contents = main_memory[i];
         cache_memory[i].clean = 1;
     }
+    */
 }
 
 //  -------------------------------------------------------------------
