@@ -26,6 +26,14 @@ AWORD                       main_memory[N_MAIN_MEMORY_WORDS];
 #define N_CACHE_WORDS       32
 
 
+//  EACH WORD OF CACHE MEMORY MUST BE TAGGED WITH A LOCATION, AND AS CLEAN OR DIRTY
+struct CACHE_WORD {
+    AWORD address;          // Location
+    IWORD contents;         //Stored word
+    bool clean;           //0 - Dirty, 1 - Clean
+} cache_memory[N_CACHE_WORDS];
+
+
 //  see:  https://teaching.csse.uwa.edu.au/units/CITS2002/projects/coolinstructions.php
 enum INSTRUCTION {
     I_HALT       = 0,
@@ -95,16 +103,53 @@ void report_statistics(void)
 
 AWORD read_memory(int address)
 {
-    ++n_main_memory_reads;
-    return main_memory[address];
+    int cache_address = address % N_CACHE_WORDS;
+    if(cache_memory[cache_address].address == address) {
+        n_cache_memory_hits++;
+    } else {
+        n_cache_memory_misses++;
+        n_main_memory_reads++;
+        if (cache_memory[cache_address].clean == 0) {
+            n_main_memory_writes++;
+            main_memory[cache_memory[cache_address].address]=cache_memory[cache_address].contents;
+            cache_memory[cache_address].address=address;
+            cache_memory[cache_address].contents=main_memory[address];
+            cache_memory[cache_address].clean =1;
+        } else {
+            cache_memory[cache_address].address=address;
+            cache_memory[cache_address].contents=main_memory[address];
+            cache_memory[cache_address].clean =1;  
+        }  
+    }
+    return cache_memory[cache_address].contents;   
 }
 
 void write_memory(AWORD address, AWORD value)
 {
-    ++n_main_memory_writes;
-    main_memory[address] = value;
+    int cache_address=address%N_CACHE_WORDS;
+    if(cache_memory[cache_address].address== address) {
+        n_cache_memory_hits++;
+        cache_memory[cache_address].contents=value;
+        cache_memory[cache_address].clean=0;
+        }
+    else {
+        n_cache_memory_misses++;
+        n_main_memory_reads++;
+        if(cache_memory[cache_address].clean == 0) {
+            n_main_memory_writes++;
+            main_memory[cache_memory[cache_address].address]=cache_memory[cache_address].contents;
+            cache_memory[cache_address].address=address;
+            cache_memory[cache_address].contents=value;
+            cache_memory[cache_address].clean =0;
+            }
+        else {
+            cache_memory[cache_address].address=address;
+            cache_memory[cache_address].contents=value;
+            cache_memory[cache_address].clean =0;
+            }  
+    }
 }
-
+ 
 //  -------------------------------------------------------------------
 
 //  EXECUTE THE INSTRUCTIONS IN main_memory[]
@@ -220,7 +265,7 @@ int execute_stackmachine(void)
 
                             printf("...\t%i\n", value1);
                             break;
-        case I_PRINTS :
+        case I_PRINTS : ;
                             // temp address PC
                             
 
@@ -231,7 +276,25 @@ int execute_stackmachine(void)
                             // newline char
 
                             // increment to next instruction
-                            ++PC;
+                            //++PC;
+
+                            char string_sections[1<<8];
+                            int print_start =read_memory(PC);
+                            int i=2;
+                            int raw=read_memory(print_start);
+                            string_sections[0]=raw%256;
+                            string_sections[1]=raw/256;
+                            while(string_sections[i-1]!='\0'&&string_sections[i-2]!='\0'){
+                                raw = read_memory(print_start-1+i);
+                                string_sections[(2*i)-2]=raw%256;
+                                string_sections[(2*i)-1]=raw/256;
+                                i+=1;
+                                }
+                            int j;
+                            for(j=0; j<strlen(string_sections);j++){
+                                printf("%c",string_sections[j]);
+                            }
+                            PC++;
                             break;
         case I_PUSHC :
                             --SP;
@@ -298,6 +361,14 @@ void read_coolexe_file(char filename[])
     }
 
     fclose(fp);
+
+    // load cache with first 32 bytes of main memory
+    for(AWORD i = 0; i < N_CACHE_WORDS; i++) {
+        cache_memory[i].address = i;
+        n_main_memory_reads++;
+        cache_memory[i].contents = main_memory[i];
+        cache_memory[i].clean = 1;
+    }
 }
 
 //  -------------------------------------------------------------------
