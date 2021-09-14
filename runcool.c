@@ -288,32 +288,24 @@ int execute_stackmachine(void)
                             // temp address PC
                             int print_addr = read_memory(PC);
 
-                            // loop to null byte (check if either half is null)
-                                // read byte and split split into half
-                                //print
-
                             // init a char array that holds 2 bytes of chars
                             char string_sections[2];
 
-                            // init break condition (when string is finished printing)
-                            bool print_break = false;
-
-                            while(!print_break) {
+                            while(true) {
                                 int raw = read_memory(print_addr);
 
                                 // read each byte separately (fread??)
                                 string_sections[0]=raw%256;
                                 string_sections[1]=raw/256;
 
-                                for (int chr = 0; chr < strlen(string_sections); ++chr) {
-                                    // check if char is a null byte
-                                    if (string_sections[chr] == '\0') {
-                                        print_break = true;
-                                        break;
-                                    }
+                                for (int chr = 0; chr < 2; ++chr) {
                                     // if char is not a null byte then print so stdout
                                     printf("%c", string_sections[chr]);
-
+                                }
+     
+                                // check if char is a null byte
+                                if (string_sections[0] == '\0' || string_sections[1] == '\0') {
+                                    break;
                                 }
 
                                 ++print_addr;
@@ -322,27 +314,6 @@ int execute_stackmachine(void)
 
                             // increment to next instruction (after start of str addr)
                             ++PC;
-/*
-                            char string_sections[1<<8];
-                            int print_start =read_memory(PC);
-                            int i=2;
-                            int raw=read_memory(print_start);
-                            string_sections[0]=raw%256;
-                            string_sections[1]=raw/256;
-                            while(string_sections[i-1]!='\0'&&string_sections[i-2]!='\0'){
-                                raw = read_memory(print_start-1+i);
-                                string_sections[(2*i)-2]=raw%256;
-                                string_sections[(2*i)-1]=raw/256;
-                                i+=1;
-                                }
-                            int j;
-                            for(j=0; j<strlen(string_sections);j++){
-                                printf("%c",string_sections[j]);
-                            }
-
-                            // go to next instruction (after print)
-                            PC++;
-*/
                             break;
         case I_PUSHC :
                             --SP;
