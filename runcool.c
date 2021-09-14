@@ -113,6 +113,9 @@ AWORD read_memory(int address)
     */
 
     int cache_address = address % N_CACHE_WORDS;
+    
+    //printf("%i\n", cache_address);
+
     if(cache_memory[cache_address].address == address) {
         n_cache_memory_hits++;
     } else {
@@ -149,18 +152,18 @@ void write_memory(AWORD address, AWORD value)
     } else {
         n_cache_memory_misses++;
         n_main_memory_reads++;
-        // this is where i left off - everyone says hi from 1628 UTC+8
-        if(cache_memory[cache_address].clean == 0) {
+        
+        if(cache_memory[cache_address].clean == false) {
             //n_main_memory_writes++;
             main_memory[cache_memory[cache_address].address]=cache_memory[cache_address].contents;
-            cache_memory[cache_address].address=address;
-            cache_memory[cache_address].contents=value;
-            cache_memory[cache_address].clean =0;
+            cache_memory[cache_address].address  = address;
+            cache_memory[cache_address].contents = value;
+            cache_memory[cache_address].clean    = false;
             }
         else {
-            cache_memory[cache_address].address=address;
-            cache_memory[cache_address].contents=value;
-            cache_memory[cache_address].clean =0;
+            cache_memory[cache_address].address  = address;
+            cache_memory[cache_address].contents = value;
+            cache_memory[cache_address].clean    = false;
             }  
     }
 }
@@ -389,8 +392,12 @@ void read_coolexe_file(char filename[])
     } else {
         fread(main_memory, 2, N_MAIN_MEMORY_WORDS, fp);
     }
-
     fclose(fp);
+
+    // init cache after reading file
+    for (int memloc = 0; memloc < N_CACHE_WORDS; ++memloc) {
+        cache_memory[memloc].clean = false;
+    }
 }
 
 //  -------------------------------------------------------------------
