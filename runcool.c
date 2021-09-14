@@ -1,6 +1,6 @@
 //  CITS2002 Project 1 2021
-//  Name(s):             Sean Peralta Garcia
-//  Student number(s):   23088091
+//  Name(s):             Sean Peralta Garcia, Cameron Locke 
+//  Student number(s):   23088091, 21137282
 
 //  compile with:  cc -std=c11 -Wall -Werror -o runcool runcool.c
 
@@ -110,8 +110,6 @@ AWORD read_memory(int address)
     ++n_main_memory_reads;
     return main_memory[address];
 
-
-    /*
     int cache_address = address % N_CACHE_WORDS;
     if(cache_memory[cache_address].address == address) {
         n_cache_memory_hits++;
@@ -130,7 +128,7 @@ AWORD read_memory(int address)
             cache_memory[cache_address].clean =1;  
         }  
     }
-    return cache_memory[cache_address].contents;   */
+    return cache_memory[cache_address].contents;
 }
 
 void write_memory(AWORD address, AWORD value)
@@ -138,8 +136,6 @@ void write_memory(AWORD address, AWORD value)
     ++n_main_memory_writes;
     main_memory[address] = value;
 
-    
-    /*
     int cache_address=address%N_CACHE_WORDS;
     if(cache_memory[cache_address].address== address) {
         n_cache_memory_hits++;
@@ -162,7 +158,6 @@ void write_memory(AWORD address, AWORD value)
             cache_memory[cache_address].clean =0;
             }  
     }
-    */
 }
  
 //  -------------------------------------------------------------------
@@ -391,16 +386,6 @@ void read_coolexe_file(char filename[])
     }
 
     fclose(fp);
-
-    /*
-    // load cache with first 32 bytes of main memory
-    for(AWORD i = 0; i < N_CACHE_WORDS; i++) {
-        cache_memory[i].address = i;
-        n_main_memory_reads++;
-        cache_memory[i].contents = main_memory[i];
-        cache_memory[i].clean = 1;
-    }
-    */
 }
 
 //  -------------------------------------------------------------------
