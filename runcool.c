@@ -270,19 +270,18 @@ int execute_stackmachine(void)
                             PC = read_memory(PC);
                             break;
         case I_JEQ :
-                            // have not popped value (might need a fix)
-
                             if (read_memory(SP) == 0) {
                                 PC = read_memory(PC);
                             } else {
                                 ++PC;
                             }
+                            ++SP;
                             break;
         case I_PRINTI : ;
                             // convert to signed
                             value1 = read_memory(SP);
 
-                            printf("...\t%i\n", value1);
+                            printf("%i", value1);
                             break;
         case I_PRINTS : ;
                             // temp address PC
@@ -300,7 +299,7 @@ int execute_stackmachine(void)
 
                                 for (int chr = 0; chr < 2; ++chr) {
                                     // if char is not a null byte then print so stdout
-                                    printf("%c", string_sections[chr]);
+                                    putchar(string_sections[chr]);
                                 }
      
                                 // check if char is a null byte
@@ -329,7 +328,7 @@ int execute_stackmachine(void)
                             
                             ++PC;
                             break;
-        case I_PUSHR : ;
+        case I_PUSHR : 
                             // hold signed value if negative
                             signed_pc = read_memory(PC);
                             
@@ -351,7 +350,7 @@ int execute_stackmachine(void)
                             write_memory(read_memory(PC), value1);
                             ++SP;
                             break;
-        case I_POPR : ;
+        case I_POPR : 
                             // hold signed value if negative
                             signed_pc = read_memory(PC);
 
@@ -363,7 +362,6 @@ int execute_stackmachine(void)
                             ++PC;
                             break;
         }
-       //printf("%i\n", main_memory[SP]);
     }
 
 //  THE RESULT OF EXECUTING THE INSTRUCTIONS IS FOUND ON THE TOP-OF-STACK
@@ -421,7 +419,7 @@ int main(int argc, char *argv[])
 
     report_statistics();
 
-    printf("\nexit(%i)\n", result);
+    printf("\n@exit(%i)\n", result);
 
     return result;          // or  exit(result);
 }
