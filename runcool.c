@@ -30,7 +30,7 @@ AWORD                       main_memory[N_MAIN_MEMORY_WORDS];
 struct CACHE_WORD {
     AWORD address;          // Location
     IWORD contents;         //Stored word
-    bool clean;           //0 - Dirty, 1 - Clean
+    bool clean;             //0 - Dirty, 1 - Clean
 } cache_memory[N_CACHE_WORDS];
 
 
@@ -107,8 +107,10 @@ void report_statistics(void)
 
 AWORD read_memory(int address)
 {
+    /*
     ++n_main_memory_reads;
     return main_memory[address];
+    */
 
     int cache_address = address % N_CACHE_WORDS;
     if(cache_memory[cache_address].address == address) {
@@ -116,16 +118,17 @@ AWORD read_memory(int address)
     } else {
         n_cache_memory_misses++;
         n_main_memory_reads++;
-        if (cache_memory[cache_address].clean == 0) {
-            n_main_memory_writes++;
-            main_memory[cache_memory[cache_address].address]=cache_memory[cache_address].contents;
-            cache_memory[cache_address].address=address;
-            cache_memory[cache_address].contents=main_memory[address];
-            cache_memory[cache_address].clean =1;
+        if (cache_memory[cache_address].clean == true) {
+            cache_memory[cache_address].address  = address;
+            cache_memory[cache_address].contents = main_memory[address];
+            cache_memory[cache_address].clean    = true;  
+
         } else {
-            cache_memory[cache_address].address=address;
-            cache_memory[cache_address].contents=main_memory[address];
-            cache_memory[cache_address].clean =1;  
+            //n_main_memory_writes++;
+            main_memory[ cache_memory[cache_address].address ] = cache_memory[cache_address].contents;
+            cache_memory[cache_address].address  = address;
+            cache_memory[cache_address].contents = main_memory[address];
+            cache_memory[cache_address].clean    = true;
         }  
     }
     return cache_memory[cache_address].contents;
@@ -133,20 +136,22 @@ AWORD read_memory(int address)
 
 void write_memory(AWORD address, AWORD value)
 {
+    /*
     ++n_main_memory_writes;
     main_memory[address] = value;
+    */
 
-    int cache_address=address%N_CACHE_WORDS;
-    if(cache_memory[cache_address].address== address) {
+    int cache_address = address % N_CACHE_WORDS;
+    if(cache_memory[cache_address].address == address) {
         n_cache_memory_hits++;
-        cache_memory[cache_address].contents=value;
-        cache_memory[cache_address].clean=0;
-        }
-    else {
+        cache_memory[cache_address].contents = value;
+        cache_memory[cache_address].clean = false;
+    } else {
         n_cache_memory_misses++;
         n_main_memory_reads++;
+        // this is where i left off - everyone says hi from 1628 UTC+8
         if(cache_memory[cache_address].clean == 0) {
-            n_main_memory_writes++;
+            //n_main_memory_writes++;
             main_memory[cache_memory[cache_address].address]=cache_memory[cache_address].contents;
             cache_memory[cache_address].address=address;
             cache_memory[cache_address].contents=value;
