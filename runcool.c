@@ -80,10 +80,11 @@ const char *INSTRUCTION_name[] = {
 
 
 //  THE STATISTICS TO BE ACCUMULATED AND REPORTED
-int n_main_memory_reads     = 0;
-int n_main_memory_writes    = 0;
-int n_cache_memory_hits     = 0;
-int n_cache_memory_misses   = 0;
+int n_main_memory_reads         = 0;
+int n_main_memory_writes        = 0;
+int n_cache_memory_hits         = 0;
+int n_cache_memory_misses       = 0;
+int n_number_of_instructions    = 0;
 
 void report_statistics(void)
 {
@@ -91,6 +92,9 @@ void report_statistics(void)
     printf("@number-of-main-memory-writes-(fast-jeq)\t%i\n",   n_main_memory_writes);
     printf("@number-of-cache-memory-hits\t%i\n",    n_cache_memory_hits);
     printf("@number-of-cache-memory-misses\t%i\n",  n_cache_memory_misses);
+    
+    printf("\n");
+    printf("@number-of-instructions\t%i\n",  n_number_of_instructions);
 }
 
 //  -------------------------------------------------------------------
@@ -172,6 +176,9 @@ int execute_stackmachine(void)
     int FP      = 0;                    // frame pointer
 
     while(true) {
+        // incrememnt count number of instructions count
+        ++n_number_of_instructions;
+
         int value1, value2;
         IWORD signed_pc;
 
@@ -181,7 +188,7 @@ int execute_stackmachine(void)
         IWORD instruction   = read_memory(PC);
         ++PC;
 
-        printf(">>> %s (%i)\n", INSTRUCTION_name[instruction], main_memory[PC-1]);
+        //printf(">>> %s (%i)\n", INSTRUCTION_name[instruction], main_memory[PC-1]);
 
         if(instruction == I_HALT) {
             break;
@@ -279,17 +286,45 @@ int execute_stackmachine(void)
                             break;
         case I_PRINTS : ;
                             // temp address PC
-                            
+                            int print_addr = read_memory(PC);
 
-                            // loop to null byte
-                                // bin to char
+                            // loop to null byte (check if either half is null)
+                                // read byte and split split into half
                                 //print
 
+                            // init a char array that holds 2 bytes of chars
+                            char string_sections[2];
+
+                            // init break condition (when string is finished printing)
+                            bool print_break = false;
+
+                            while(!print_break) {
+                                int raw = read_memory(print_addr);
+
+                                // read each byte separately (fread??)
+                                string_sections[0]=raw%256;
+                                string_sections[1]=raw/256;
+
+                                for (int chr = 0; chr < strlen(string_sections); ++chr) {
+                                    // check if char is a null byte
+                                    if (string_sections[chr] == '\0') {
+                                        print_break = true;
+                                        break;
+                                    }
+                                    // if char is not a null byte then print so stdout
+                                    printf("%c", string_sections[chr]);
+
+                                }
+
+                                ++print_addr;
+                            }
+
                             // newline char
+                            printf("\n");
 
-                            // increment to next instruction
-                            //++PC;
-
+                            // increment to next instruction (after start of str addr)
+                            ++PC;
+/*
                             char string_sections[1<<8];
                             int print_start =read_memory(PC);
                             int i=2;
@@ -306,7 +341,10 @@ int execute_stackmachine(void)
                             for(j=0; j<strlen(string_sections);j++){
                                 printf("%c",string_sections[j]);
                             }
+
+                            // go to next instruction (after print)
                             PC++;
+*/
                             break;
         case I_PUSHC :
                             --SP;
@@ -325,11 +363,10 @@ int execute_stackmachine(void)
         case I_PUSHR : ;
                             // hold signed value if negative
                             signed_pc = read_memory(PC);
-
-                            printf("%i\n", signed_pc);
+                            
                             // holds value to be stored on TOS
                             value1 = read_memory(FP + signed_pc);
-                            printf("%i\n", value1);
+                            
                             --SP;
                             write_memory(SP, value1);
                             //printf("sp (%i): %i\n", SP, main_memory[SP]);
@@ -357,7 +394,7 @@ int execute_stackmachine(void)
                             ++PC;
                             break;
         }
-       printf("%i\n", main_memory[SP]);
+       //printf("%i\n", main_memory[SP]);
     }
 
 //  THE RESULT OF EXECUTING THE INSTRUCTIONS IS FOUND ON THE TOP-OF-STACK
