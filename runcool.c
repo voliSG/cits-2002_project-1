@@ -319,8 +319,6 @@ int execute_stackmachine(void)
                                 ++print_addr;
                             }
 
-                            // newline char
-                            printf("\n");
 
                             // increment to next instruction (after start of str addr)
                             ++PC;
