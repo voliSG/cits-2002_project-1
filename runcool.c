@@ -282,6 +282,8 @@ int execute_stackmachine(void)
                             value1 = read_memory(SP);
 
                             printf("%i", value1);
+
+                            ++SP;
                             break;
         case I_PRINTS : ;
                             // temp address PC
