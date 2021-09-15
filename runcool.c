@@ -30,7 +30,7 @@ AWORD                       main_memory[N_MAIN_MEMORY_WORDS];
 struct CACHE_WORD {
     AWORD address;          // Location
     IWORD contents;         //Stored word
-    bool clean;             //0 - Dirty, 1 - Clean
+    bool clean;             //0 - Dirty, 1 - Clean (default 0/false)
 } cache_memory[N_CACHE_WORDS];
 
 
@@ -111,10 +111,11 @@ AWORD read_memory(int address)
     ++n_main_memory_reads;
     return main_memory[address];
     */
-
     int cache_address = address % N_CACHE_WORDS;
-    
-    //printf("%i\n", cache_address);
+
+/*
+    // check if dirty first becaause 
+
 
     if(cache_memory[cache_address].address == address) {
         n_cache_memory_hits++;
@@ -133,7 +134,9 @@ AWORD read_memory(int address)
             cache_memory[cache_address].contents = main_memory[address];
             cache_memory[cache_address].clean    = true;
         }  
-    }
+    } */
+
+
     return cache_memory[cache_address].contents;
 }
 
@@ -145,10 +148,11 @@ void write_memory(AWORD address, AWORD value)
     */
 
     int cache_address = address % N_CACHE_WORDS;
+
+    /*
     if(cache_memory[cache_address].address == address) {
         n_cache_memory_hits++;
         cache_memory[cache_address].contents = value;
-        cache_memory[cache_address].clean = false;
     } else {
         n_cache_memory_misses++;
         n_main_memory_reads++;
@@ -158,14 +162,15 @@ void write_memory(AWORD address, AWORD value)
             main_memory[cache_memory[cache_address].address]=cache_memory[cache_address].contents;
             cache_memory[cache_address].address  = address;
             cache_memory[cache_address].contents = value;
-            cache_memory[cache_address].clean    = false;
             }
         else {
             cache_memory[cache_address].address  = address;
             cache_memory[cache_address].contents = value;
-            cache_memory[cache_address].clean    = false;
-            }  
-    }
+        } 
+
+        cache_memory[cache_address].clean    = false;
+    } */
+
 }
  
 //  -------------------------------------------------------------------
@@ -394,10 +399,13 @@ void read_coolexe_file(char filename[])
     }
     fclose(fp);
 
+
     // init cache after reading file
-    for (int memloc = 0; memloc < N_CACHE_WORDS; ++memloc) {
-        cache_memory[memloc].clean = false;
-    }
+    //for (int memloc = 0; memloc < N_CACHE_WORDS; ++memloc) {
+        // problems with default value matching address even if byte is dirty
+        //cache_memory[memloc].address  = NULL;
+    //}
+
 }
 
 //  -------------------------------------------------------------------
