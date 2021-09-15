@@ -28,7 +28,7 @@ AWORD                       main_memory[N_MAIN_MEMORY_WORDS];
 
 //  EACH WORD OF CACHE MEMORY MUST BE TAGGED WITH A LOCATION, AND AS CLEAN OR DIRTY
 struct CACHE_WORD {
-    AWORD address;          // Location
+    int address;          // Location
     IWORD contents;         //Stored word
     bool clean;             //0 - Dirty, 1 - Clean (default 0/false)
 } cache_memory[N_CACHE_WORDS];
@@ -105,36 +105,32 @@ void report_statistics(void)
 //  THIS WILL MAKE THINGS EASIER WHEN WHEN EXTENDING THE CODE TO
 //  SUPPORT CACHE MEMORY
 
+void write_back_byte()
+{
+
+}
+
 AWORD read_memory(int address)
 {
-    /*
-    ++n_main_memory_reads;
-    return main_memory[address];
-    */
     int cache_address = address % N_CACHE_WORDS;
-
-/*
-    // check if dirty first becaause 
-
 
     if(cache_memory[cache_address].address == address) {
         n_cache_memory_hits++;
     } else {
         n_cache_memory_misses++;
         n_main_memory_reads++;
-        if (cache_memory[cache_address].clean == true) {
-            cache_memory[cache_address].address  = address;
-            cache_memory[cache_address].contents = main_memory[address];
-            cache_memory[cache_address].clean    = true;  
 
-        } else {
-            //n_main_memory_writes++;
-            main_memory[ cache_memory[cache_address].address ] = cache_memory[cache_address].contents;
-            cache_memory[cache_address].address  = address;
-            cache_memory[cache_address].contents = main_memory[address];
-            cache_memory[cache_address].clean    = true;
+        if (cache_memory[cache_address].clean == false) { 
+            n_main_memory_writes++;
+            int old_address = cache_memory[cache_address].address;
+            main_memory[old_address] = cache_memory[cache_address].contents;
         }  
-    } */
+
+        cache_memory[cache_address].address  = address;
+        cache_memory[cache_address].contents = main_memory[address];
+
+        cache_memory[cache_address].clean = true; 
+    }
 
 
     return cache_memory[cache_address].contents;
@@ -142,34 +138,20 @@ AWORD read_memory(int address)
 
 void write_memory(AWORD address, AWORD value)
 {
-    /*
-    ++n_main_memory_writes;
-    main_memory[address] = value;
-    */
-
     int cache_address = address % N_CACHE_WORDS;
 
-    /*
     if(cache_memory[cache_address].address == address) {
-        n_cache_memory_hits++;
         cache_memory[cache_address].contents = value;
-    } else {
-        n_cache_memory_misses++;
-        n_main_memory_reads++;
-        
+    } else {        
         if(cache_memory[cache_address].clean == false) {
-            //n_main_memory_writes++;
-            main_memory[cache_memory[cache_address].address]=cache_memory[cache_address].contents;
-            cache_memory[cache_address].address  = address;
-            cache_memory[cache_address].contents = value;
-            }
-        else {
-            cache_memory[cache_address].address  = address;
-            cache_memory[cache_address].contents = value;
-        } 
+            int old_address = cache_memory[cache_address].address;
+            main_memory[old_address] = cache_memory[cache_address].contents;
+        }
 
-        cache_memory[cache_address].clean    = false;
-    } */
+        cache_memory[cache_address].address  = address;
+        cache_memory[cache_address].contents = value;
+        cache_memory[cache_address].clean = false;
+    }
 
 }
  
@@ -347,8 +329,6 @@ int execute_stackmachine(void)
                             
                             --SP;
                             write_memory(SP, value1);
-                            //printf("sp (%i): %i\n", SP, main_memory[SP]);
-
 
                             ++PC;
 
@@ -398,14 +378,15 @@ void read_coolexe_file(char filename[])
         fread(main_memory, 2, N_MAIN_MEMORY_WORDS, fp);
     }
     fclose(fp);
+}
 
-
-    // init cache after reading file
-    //for (int memloc = 0; memloc < N_CACHE_WORDS; ++memloc) {
-        // problems with default value matching address even if byte is dirty
-        //cache_memory[memloc].address  = NULL;
-    //}
-
+void initialise_cache(void)
+{
+    for (int memloc = 0; memloc < N_CACHE_WORDS; ++memloc) {
+        // initialise all addresses to address that doesnt exist in main_memory (effectively null)
+        cache_memory[memloc].address  = N_MAIN_MEMORY_WORDS + 1;
+        cache_memory[memloc].clean    = false;
+    }
 }
 
 //  -------------------------------------------------------------------
@@ -420,6 +401,9 @@ int main(int argc, char *argv[])
 
 //  READ THE PROVIDED coolexe FILE INTO THE EMULATED MEMORY
     read_coolexe_file(argv[1]);
+
+// INITIALISE cache
+    initialise_cache();
 
 //  EXECUTE THE INSTRUCTIONS FOUND IN main_memory[]
     int result = execute_stackmachine();
