@@ -28,7 +28,7 @@ AWORD                       main_memory[N_MAIN_MEMORY_WORDS];
 
 //  EACH WORD OF CACHE MEMORY MUST BE TAGGED WITH A LOCATION, AND AS CLEAN OR DIRTY
 struct CACHE_WORD {
-    int address;          // Location
+    AWORD address;          // Location
     IWORD contents;         //Stored word
     bool clean;             //0 - Dirty, 1 - Clean (default 0/false)
 } cache_memory[N_CACHE_WORDS];
@@ -105,11 +105,6 @@ void report_statistics(void)
 //  THIS WILL MAKE THINGS EASIER WHEN WHEN EXTENDING THE CODE TO
 //  SUPPORT CACHE MEMORY
 
-void write_back_byte()
-{
-
-}
-
 AWORD read_memory(int address)
 {
     int cache_address = address % N_CACHE_WORDS;
@@ -120,18 +115,20 @@ AWORD read_memory(int address)
         n_cache_memory_misses++;
         n_main_memory_reads++;
 
+        // if byte is dirty then write back to main memory to
         if (cache_memory[cache_address].clean == false) { 
             n_main_memory_writes++;
             int old_address = cache_memory[cache_address].address;
             main_memory[old_address] = cache_memory[cache_address].contents;
         }  
 
+        // update address and read contents of main memory into cache
         cache_memory[cache_address].address  = address;
         cache_memory[cache_address].contents = main_memory[address];
 
-        cache_memory[cache_address].clean = true; 
+        // byte is now clean
+        cache_memory[cache_address].clean = true;
     }
-
 
     return cache_memory[cache_address].contents;
 }
@@ -142,17 +139,21 @@ void write_memory(AWORD address, AWORD value)
 
     if(cache_memory[cache_address].address == address) {
         cache_memory[cache_address].contents = value;
-    } else {        
+    } else {
+
+        // if byte is dirty then write back to main memory
         if(cache_memory[cache_address].clean == false) {
             int old_address = cache_memory[cache_address].address;
             main_memory[old_address] = cache_memory[cache_address].contents;
         }
 
+        // update address and contents of cache memory
         cache_memory[cache_address].address  = address;
         cache_memory[cache_address].contents = value;
-        cache_memory[cache_address].clean = false;
     }
 
+    // byte is now dirty
+    cache_memory[cache_address].clean = false;
 }
  
 //  -------------------------------------------------------------------
@@ -170,15 +171,14 @@ int execute_stackmachine(void)
         ++n_number_of_instructions;
 
         int value1, value2;
+
+        // holds the signed value of an FP-offset
         IWORD signed_pc;
 
 
 //  FETCH THE NEXT INSTRUCTION TO BE EXECUTED
-        //printf("INSTRUCTION: %i\n", read_memory(PC));
         IWORD instruction   = read_memory(PC);
         ++PC;
-
-        //printf(">>> %s (%i)\n", INSTRUCTION_name[instruction], main_memory[PC-1]);
 
         if(instruction == I_HALT) {
             break;
@@ -383,8 +383,8 @@ void read_coolexe_file(char filename[])
 void initialise_cache(void)
 {
     for (int memloc = 0; memloc < N_CACHE_WORDS; ++memloc) {
-        // initialise all addresses to address that doesnt exist in main_memory (effectively null)
-        cache_memory[memloc].address  = N_MAIN_MEMORY_WORDS + 1;
+        // initialise all addresses to from bottom of stack - can assume that program data does not exist here
+        cache_memory[memloc].address  = N_MAIN_MEMORY_WORDS - 1;
         cache_memory[memloc].clean    = false;
     }
 }
